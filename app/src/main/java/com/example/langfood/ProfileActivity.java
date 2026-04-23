@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ProfileActivity extends AppCompatActivity {
 
     private TextView tvUserName, tvUserRole, tvPhone, tvEmail, tvBuilding;
-    private TextView btnEditProfile, btnChangePassword, btnMyAddresses, btnAddFood, btnManageFood, btnRegisterPartner, btnLogout, btnShipperManage;
+    private TextView btnEditProfile, btnChangePassword, btnMyAddresses, btnAddFood, btnManageFood, btnRegisterPartner, btnLogout, btnShipperManage, btnManageCategory;
     private View dividerAddFood, dividerManageFood, dividerShipperManage;
 
     @Override
@@ -47,6 +47,7 @@ public class ProfileActivity extends AppCompatActivity {
         dividerShipperManage = findViewById(R.id.dividerShipperManage);
         btnRegisterPartner = findViewById(R.id.btnRegisterPartner);
         btnLogout = findViewById(R.id.btnLogout);
+        btnManageCategory = findViewById(R.id.btnManageCategory);
     }
 
     private void loadUserInfo() {
@@ -57,7 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
         String phone = prefs.getString("PHONE", "Chưa có SĐT");
         String building = prefs.getString("BUILDING", "");
         String room = prefs.getString("ROOM", "");
-        int roleId = prefs.getInt("ROLE_ID", 1); // 1: Buyer, 2: Seller
+        int roleId = prefs.getInt("ROLE_ID", 1); // 1: Buyer, 2: Seller, 3: Shipper, 0: Admin (giả định)
 
         tvUserName.setText(fullName);
         tvPhone.setText("SĐT: " + phone);
@@ -69,36 +70,45 @@ public class ProfileActivity extends AppCompatActivity {
             tvBuilding.setText("Ký túc xá: Chưa cập nhật");
         }
 
-        // Kiểm tra nếu là Seller (Role 2) thì hiện nút Quản lý & Đăng đồ ăn
+        // Kiểm tra quyền hiển thị
         if (roleId == 2) { // Seller
             tvUserRole.setText("Sinh viên - Seller");
-            btnManageFood.setVisibility(View.VISIBLE); // Chỉ hiện Quản lý món ăn
-            btnAddFood.setVisibility(View.GONE);       // Ẩn Đăng món ăn mới (đã có trong Quản lý)
-            btnRegisterPartner.setVisibility(View.GONE); // Đã là đối tác thì ẩn nút đăng ký
+            btnManageFood.setVisibility(View.VISIBLE);
+            btnAddFood.setVisibility(View.GONE);
+            btnRegisterPartner.setVisibility(View.GONE);
+            btnManageCategory.setVisibility(View.GONE); // Chỉ Admin mới được quản lý category
 
             if (dividerManageFood != null) dividerManageFood.setVisibility(View.VISIBLE);
-            if (dividerAddFood != null) dividerAddFood.setVisibility(View.GONE);
-        } else if (roleId == 3) { // Role của Shipper
+        } else if (roleId == 3) { // Shipper
             tvUserRole.setText("Shipper");
             btnShipperManage.setVisibility(View.VISIBLE);
             if (dividerShipperManage != null) dividerShipperManage.setVisibility(View.VISIBLE);
             btnRegisterPartner.setVisibility(View.GONE);
-            
-            btnShipperManage.setOnClickListener(v -> {
-                startActivity(new Intent(ProfileActivity.this, ShipperManageActivity.class));
-            });
+            btnManageCategory.setVisibility(View.GONE);
         } else {
             tvUserRole.setText("Sinh viên - Buyer");
             btnAddFood.setVisibility(View.GONE);
             btnManageFood.setVisibility(View.GONE);
             btnShipperManage.setVisibility(View.GONE);
-            if (dividerAddFood != null) dividerAddFood.setVisibility(View.GONE);
-            if (dividerManageFood != null) dividerManageFood.setVisibility(View.GONE);
-            if (dividerShipperManage != null) dividerShipperManage.setVisibility(View.GONE);
+            btnManageCategory.setVisibility(View.GONE);
+        }
+        
+        // Nếu là Admin (role 0) thì luôn hiện Quản lý danh mục
+        if (roleId == 0) {
+            tvUserRole.setText("Administrator");
+            btnManageCategory.setVisibility(View.VISIBLE);
+            
+            // Admin có thể muốn xem cả quản lý món ăn hoặc không tùy bạn, hiện tại tôi chỉ giữ category
+            btnManageFood.setVisibility(View.GONE);
         }
     }
 
     private void setupClickListeners() {
+        // Nút Quản lý danh mục món ăn
+        btnManageCategory.setOnClickListener(v -> {
+            startActivity(new Intent(ProfileActivity.this, ManageCategoryActivity.class));
+        });
+
         // Nút Quản lý món ăn
         btnManageFood.setOnClickListener(v -> {
             startActivity(new Intent(ProfileActivity.this, ManageFoodActivity.class));
@@ -124,6 +134,12 @@ public class ProfileActivity extends AppCompatActivity {
         if (btnRegisterPartner != null) {
             btnRegisterPartner.setOnClickListener(v -> {
                 Toast.makeText(this, "Chức năng Đăng ký Partner đang phát triển", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        if (btnShipperManage != null) {
+            btnShipperManage.setOnClickListener(v -> {
+                startActivity(new Intent(ProfileActivity.this, ShipperManageActivity.class));
             });
         }
 

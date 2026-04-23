@@ -1,6 +1,7 @@
 package com.example.langfood.api;
 
 import com.example.langfood.models.CartItem;
+import com.example.langfood.models.Category;
 import com.example.langfood.models.Product;
 import com.example.langfood.models.User;
 import com.example.langfood.models.Order;
@@ -23,7 +24,7 @@ import retrofit2.http.Query;
 public interface ApiService {
 
     @GET("api/Products")
-    Call<List<Product>> getProducts();
+    Call<List<Product>> getProducts(@Query("categoryId") Integer categoryId);
 
     @GET("api/Products/{id}")
     Call<Product> getProductById(@Path("id") int id);
@@ -70,6 +71,7 @@ public interface ApiService {
             @Part("price") RequestBody price,
             @Part("description") RequestBody description,
             @Part("sellerId") RequestBody sellerId,
+            @Part("categoryId") RequestBody categoryId,
             @Part MultipartBody.Part image
     );
 
@@ -78,4 +80,25 @@ public interface ApiService {
 
     @PUT("api/Products/{id}")
     Call<Void> updateProduct(@Path("id") int id, @Body Product product);
+
+    // --- API CATEGORY ---
+    @GET("api/Categories")
+    Call<List<Category>> getCategories();
+
+    @POST("api/Categories")
+    Call<Category> addCategory(@Body Category category);
+
+    @POST("api/Categories/upload")
+    @Multipart
+    Call<Category> addCategoryWithImage(
+            @Part("name") RequestBody name,
+            @Part("description") RequestBody description,
+            @Part MultipartBody.Part image
+    );
+
+    @PUT("api/Categories/{id}")
+    Call<Void> updateCategory(@Path("id") int id, @Body Category category);
+
+    @DELETE("api/Categories/{id}")
+    Call<Void> deleteCategory(@Path("id") int id);
 }

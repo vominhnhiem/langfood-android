@@ -66,13 +66,14 @@ public class ManageFoodActivity extends AppCompatActivity implements ManageFoodA
     }
 
     private void loadMyFoods() {
-        apiService.getProducts().enqueue(new Callback<List<Product>>() {
+        // Pass null to get all products, then filter by sellerId
+        apiService.getProducts(null).enqueue(new Callback<List<Product>>() {
             @Override
             public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     productList.clear();
                     for (Product p : response.body()) {
-                        if (String.valueOf(p.getSellerId()).equals(sellerId)) {
+                        if (p.getSellerId() != null && p.getSellerId().equals(sellerId)) {
                             productList.add(p);
                         }
                     }
