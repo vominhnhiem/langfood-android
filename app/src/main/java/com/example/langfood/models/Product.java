@@ -24,11 +24,14 @@ public class Product {
     @SerializedName("sellerId")
     private String sellerId;
 
+    @SerializedName("categoryId")
+    private int categoryId;
+
     // Constructor không tham số
     public Product() {}
 
-    // Constructor có tham số (tiện cho việc tạo object nhanh nếu cần)
-    public Product(int id, String name, String description, double price, String imageUrl, boolean isAvailable, String sellerId) {
+    // Constructor có tham số
+    public Product(int id, String name, String description, double price, String imageUrl, boolean isAvailable, String sellerId, int categoryId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -36,6 +39,7 @@ public class Product {
         this.imageUrl = imageUrl;
         this.isAvailable = isAvailable;
         this.sellerId = sellerId;
+        this.categoryId = categoryId;
     }
 
     // --- GETTER AND SETTER ---
@@ -60,4 +64,7 @@ public class Product {
 
     public String getSellerId() { return sellerId; }
     public void setSellerId(String sellerId) { this.sellerId = sellerId; }
+
+    public int getCategoryId() { return categoryId; }
+    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
 }

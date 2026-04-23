@@ -16,11 +16,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.langfood.api.ApiClient;
 import com.example.langfood.api.ApiService;
+import com.example.langfood.models.Category;
 import com.example.langfood.models.Product;
 import com.google.android.material.card.MaterialCardView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -37,14 +40,17 @@ public class AddFoodActivity extends AppCompatActivity {
     private Spinner spCategory;
     private Button btnPostFood;
     private Uri imageUri;
+    private ApiService apiService;
+    private List<Category> categoryList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_food);
 
+        apiService = ApiClient.getClient().create(ApiService.class);
         initViews();
-        setupSpinner();
+        loadCategories();
         setupClickListeners();
     }
 
@@ -58,9 +64,26 @@ public class AddFoodActivity extends AppCompatActivity {
         btnPostFood = findViewById(R.id.btnPostFood);
     }
 
+    private void loadCategories() {
+        apiService.getCategories().enqueue(new Callback<List<Category>>() {
+            @Override
+            public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    categoryList.clear();
+                    categoryList.addAll(response.body());
+                    setupSpinner();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Category>> call, Throwable t) {
+                Toast.makeText(AddFoodActivity.this, "Lỗi tải danh mục", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void setupSpinner() {
-        String[] categories = {"Món chính", "Đồ ăn vặt", "Nước uống", "Tráng miệng"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
+        ArrayAdapter<Category> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoryList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spCategory.setAdapter(adapter);
     }
@@ -90,25 +113,28 @@ public class AddFoodActivity extends AppCompatActivity {
         String priceStr = etFoodPrice.getText().toString().trim();
         String description = etFoodDescription.getText().toString().trim();
 
-        if (name.isEmpty() || priceStr.isEmpty() || description.isEmpty() || imageUri == null) {
+        if (name.isEmpty() || priceStr.isEmpty() || description.isEmpty() || imageUri == null || spCategory.getSelectedItem() == null) {
             Toast.makeText(this, "Vui lòng nhập đủ thông tin và chọn ảnh", Toast.LENGTH_SHORT).show();
             return;
         }
 
         SharedPreferences prefs = getSharedPreferences("LangFoodPrefs", MODE_PRIVATE);
         String sellerId = prefs.getString("USER_ID", "");
+        
+        Category selectedCategory = (Category) spCategory.getSelectedItem();
+        String categoryIdStr = String.valueOf(selectedCategory.getId());
 
         // Chuyển dữ liệu sang RequestBody
         RequestBody rbName = RequestBody.create(MediaType.parse("text/plain"), name);
         RequestBody rbPrice = RequestBody.create(MediaType.parse("text/plain"), priceStr);
         RequestBody rbDescription = RequestBody.create(MediaType.parse("text/plain"), description);
         RequestBody rbSellerId = RequestBody.create(MediaType.parse("text/plain"), sellerId);
+        RequestBody rbCategoryId = RequestBody.create(MediaType.parse("text/plain"), categoryIdStr);
 
         // Xử lý File ảnh
         MultipartBody.Part imagePart = prepareImagePart("image");
 
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        apiService.addProductWithImage(rbName, rbPrice, rbDescription, rbSellerId, imagePart).enqueue(new Callback<Product>() {
+        apiService.addProductWithImage(rbName, rbPrice, rbDescription, rbSellerId, rbCategoryId, imagePart).enqueue(new Callback<Product>() {
             @Override
             public void onResponse(Call<Product> call, Response<Product> response) {
                 if (response.isSuccessful()) {
