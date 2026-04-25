@@ -1,48 +1,37 @@
 package com.example.langfood.models;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class Product {
-    @SerializedName("id")
+public class Product implements Serializable {
+    @SerializedName(value = "id", alternate = {"Id"})
     private int id;
 
-    @SerializedName("name")
+    @SerializedName(value = "name", alternate = {"Name"})
     private String name;
 
-    @SerializedName("description")
+    @SerializedName(value = "description", alternate = {"Description"})
     private String description;
 
-    @SerializedName("price")
+    @SerializedName(value = "price", alternate = {"Price"})
     private double price;
 
-    @SerializedName("imageUrl")
+    @SerializedName(value = "imageUrl", alternate = {"ImageUrl"})
     private String imageUrl;
 
-    @SerializedName("isAvailable")
+    @SerializedName(value = "isAvailable", alternate = {"IsAvailable"})
     private boolean isAvailable;
 
-    @SerializedName("sellerId")
+    @SerializedName(value = "sellerId", alternate = {"SellerId"})
     private String sellerId;
 
-    @SerializedName("categoryId")
+    @SerializedName(value = "sellerName", alternate = {"SellerName"})
+    private String sellerName;
+
+    @SerializedName(value = "categoryId", alternate = {"CategoryId"})
     private int categoryId;
 
-    // Constructor không tham số
     public Product() {}
-
-    // Constructor có tham số
-    public Product(int id, String name, String description, double price, String imageUrl, boolean isAvailable, String sellerId, int categoryId) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.imageUrl = imageUrl;
-        this.isAvailable = isAvailable;
-        this.sellerId = sellerId;
-        this.categoryId = categoryId;
-    }
-
-    // --- GETTER AND SETTER ---
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -64,6 +53,9 @@ public class Product {
 
     public String getSellerId() { return sellerId; }
     public void setSellerId(String sellerId) { this.sellerId = sellerId; }
+
+    public String getSellerName() { return sellerName; }
+    public void setSellerName(String sellerName) { this.sellerName = sellerName; }
 
     public int getCategoryId() { return categoryId; }
     public void setCategoryId(int categoryId) { this.categoryId = categoryId; }

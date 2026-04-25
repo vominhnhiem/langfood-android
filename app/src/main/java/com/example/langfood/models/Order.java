@@ -1,45 +1,39 @@
 package com.example.langfood.models;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.Date;
+import java.io.Serializable;
 import java.util.List;
 
-public class Order {
-    @SerializedName("id")
+public class Order implements Serializable {
+    @SerializedName(value = "id", alternate = {"Id"})
     private int id;
 
-    @SerializedName("buyerId")
+    @SerializedName(value = "buyerId", alternate = {"BuyerId"})
     private String buyerId;
 
-    @SerializedName("buyerName")
+    @SerializedName(value = "buyerName", alternate = {"BuyerName"})
     private String buyerName;
 
-    @SerializedName("shipperId")
+    @SerializedName(value = "shipperId", alternate = {"ShipperId"})
     private String shipperId;
 
-    @SerializedName("status")
+    @SerializedName(value = "status", alternate = {"Status"})
     private String status;
 
-    @SerializedName("totalAmount")
+    @SerializedName(value = "totalAmount", alternate = {"TotalAmount"})
     private double totalAmount;
 
-    @SerializedName("shippingFee")
+    @SerializedName(value = "shippingFee", alternate = {"ShippingFee"})
     private double shippingFee;
 
-    @SerializedName("createdAt")
-    private String createdAt; 
-
-    @SerializedName("deliveredAt")
-    private String deliveredAt;
-
-    @SerializedName("deliveryBuilding")
+    @SerializedName(value = "deliveryBuilding", alternate = {"DeliveryBuilding"})
     private String deliveryBuilding;
 
-    @SerializedName("orderItems")
-    private List<OrderItem> orderItems;
+    @SerializedName(value = "createdAt", alternate = {"CreatedAt"})
+    private String createdAt;
 
-    @SerializedName("buyer")
-    private User buyer;
+    @SerializedName(value = "orderItems", alternate = {"OrderItems"})
+    private List<OrderItem> orderItems;
 
     public Order() {}
 
@@ -49,7 +43,7 @@ public class Order {
     public String getBuyerId() { return buyerId; }
     public void setBuyerId(String buyerId) { this.buyerId = buyerId; }
 
-    public String getBuyerName() { return (buyer != null) ? buyer.getFullName() : buyerName; }
+    public String getBuyerName() { return buyerName; }
     public void setBuyerName(String buyerName) { this.buyerName = buyerName; }
 
     public String getShipperId() { return shipperId; }
@@ -64,18 +58,12 @@ public class Order {
     public double getShippingFee() { return shippingFee; }
     public void setShippingFee(double shippingFee) { this.shippingFee = shippingFee; }
 
-    public String getCreatedAt() { return createdAt; }
-    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
-
-    public String getDeliveredAt() { return deliveredAt; }
-    public void setDeliveredAt(String deliveredAt) { this.deliveredAt = deliveredAt; }
-
     public String getDeliveryBuilding() { return deliveryBuilding; }
     public void setDeliveryBuilding(String deliveryBuilding) { this.deliveryBuilding = deliveryBuilding; }
 
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
     public List<OrderItem> getOrderItems() { return orderItems; }
     public void setOrderItems(List<OrderItem> orderItems) { this.orderItems = orderItems; }
-
-    public User getBuyer() { return buyer; }
-    public void setBuyer(User buyer) { this.buyer = buyer; }
 }

@@ -1,22 +1,22 @@
 package com.example.langfood.models;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class OrderItem {
-    @SerializedName("id")
+public class OrderItem implements Serializable {
+    @SerializedName(value = "id", alternate = {"Id"})
     private int id;
 
-    @SerializedName("productId")
+    @SerializedName(value = "productId", alternate = {"ProductId"})
     private int productId;
 
-    @SerializedName("quantity")
+    @SerializedName(value = "quantity", alternate = {"Quantity"})
     private int quantity;
 
-    @SerializedName("unitPrice")
+    @SerializedName(value = "unitPrice", alternate = {"UnitPrice"})
     private double unitPrice;
 
-    // Backend trả về object Product lồng bên trong
-    @SerializedName("product")
+    @SerializedName(value = "product", alternate = {"Product"})
     private Product product;
 
     public OrderItem() {}
@@ -36,12 +36,7 @@ public class OrderItem {
     public Product getProduct() { return product; }
     public void setProduct(Product product) { this.product = product; }
 
-    // Helper methods để lấy data nhanh
     public String getProductName() {
-        return (product != null) ? product.getName() : null;
-    }
-
-    public String getProductImageUrl() {
-        return (product != null) ? product.getImageUrl() : null;
+        return (product != null) ? product.getName() : "Món ăn #" + productId;
     }
 }
