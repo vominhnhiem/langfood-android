@@ -29,11 +29,12 @@ public class HomeActivity extends AppCompatActivity {
     private RecyclerView rcvProducts, rcvCategories;
     private ProductAdapter productAdapter;
     private CategoryHomeAdapter categoryAdapter;
-    private List<Product> productList = new ArrayList<>();
-    private List<Product> filteredList = new ArrayList<>();
+    private List<Product> allProducts = new ArrayList<>(); // Giữ toàn bộ data gốc
+    private List<Product> filteredList = new ArrayList<>(); // Data đang hiển thị
     private List<Category> categoryList = new ArrayList<>();
     private EditText editSearch;
     private ApiService apiService;
+    private int selectedCategoryId = -1; // -1 nghĩa là xem tất cả
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,6 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         apiService = ApiClient.getClient().create(ApiService.class);
-
         CartManager.getInstance().init(this);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -54,7 +54,7 @@ public class HomeActivity extends AppCompatActivity {
         initViews();
         setupRecyclerViews();
         loadCategories();
-        loadProducts(null); // Mặc định load tất cả khi mới vào
+        fetchAllProducts(); // Luôn tải tất cả về để tự lọc
         setupNavigation();
         setupSearch();
     }
@@ -66,21 +66,13 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerViews() {
-        // Products RecyclerView
         productAdapter = new ProductAdapter(filteredList);
         rcvProducts.setLayoutManager(new LinearLayoutManager(this));
         rcvProducts.setAdapter(productAdapter);
 
-        // Categories RecyclerView (Horizontal)
         categoryAdapter = new CategoryHomeAdapter(categoryList, category -> {
-            // Xử lý lọc khi click vào category
-            if (category.getId() == -1) {
-                // Nếu là mục "Tất cả"
-                loadProducts(null);
-            } else {
-                // Nếu là một thể loại cụ thể
-                loadProducts(category.getId());
-            }
+            selectedCategoryId = category.getId();
+            applyFilters(); // Chạy hàm lọc khi đổi category
             Toast.makeText(this, "Đang xem: " + category.getName(), Toast.LENGTH_SHORT).show();
         });
         rcvCategories.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -93,39 +85,28 @@ public class HomeActivity extends AppCompatActivity {
             public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     categoryList.clear();
-                    // 1. Thêm mục "Tất cả" vào đầu danh sách (ID giả là -1)
                     categoryList.add(new Category(-1, "Tất cả"));
-                    
-                    // 2. Thêm các danh mục từ server
                     categoryList.addAll(response.body());
                     categoryAdapter.updateData(categoryList);
                 }
             }
-
             @Override
-            public void onFailure(Call<List<Category>> call, Throwable t) {
-                Log.e("API_ERROR", "Categories fail: " + t.getMessage());
-            }
+            public void onFailure(Call<List<Category>> call, Throwable t) {}
         });
     }
 
-    private void loadProducts(Integer categoryId) {
-        apiService.getProducts(categoryId).enqueue(new Callback<List<Product>>() {
+    private void fetchAllProducts() {
+        apiService.getProducts(null).enqueue(new Callback<List<Product>>() {
             @Override
             public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    productList.clear();
-                    productList.addAll(response.body());
-                    // Sau khi nhận data mới, vẫn áp dụng filter từ ô tìm kiếm (nếu có)
-                    filter(editSearch.getText().toString());
-                } else {
-                    Toast.makeText(HomeActivity.this, "Không thể lấy danh sách món ăn", Toast.LENGTH_SHORT).show();
+                    allProducts.clear();
+                    allProducts.addAll(response.body());
+                    applyFilters(); // Hiển thị dữ liệu lần đầu
                 }
             }
-
             @Override
             public void onFailure(Call<List<Product>> call, Throwable t) {
-                Log.e("API_ERROR", t.getMessage());
                 Toast.makeText(HomeActivity.this, "Lỗi kết nối server", Toast.LENGTH_SHORT).show();
             }
         });
@@ -135,53 +116,46 @@ public class HomeActivity extends AppCompatActivity {
         editSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filter(s.toString());
+                applyFilters();
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         });
     }
 
-    private void filter(String text) {
+    // HÀM LỌC CHÍNH (Kết hợp cả Category và Search)
+    private void applyFilters() {
         filteredList.clear();
-        if (text.isEmpty()) {
-            filteredList.addAll(productList);
-        } else {
-            String query = text.toLowerCase().trim();
-            for (Product product : productList) {
-                if (product.getName().toLowerCase().contains(query) || 
-                    (product.getDescription() != null && product.getDescription().toLowerCase().contains(query))) {
-                    filteredList.add(product);
-                }
+        String searchQuery = editSearch.getText().toString().toLowerCase().trim();
+
+        for (Product p : allProducts) {
+            // 1. Kiểm tra Category
+            boolean matchesCategory = (selectedCategoryId == -1) || (p.getCategoryId() == selectedCategoryId);
+            
+            // 2. Kiểm tra Search
+            boolean matchesSearch = searchQuery.isEmpty() || 
+                                   p.getName().toLowerCase().contains(searchQuery) ||
+                                   (p.getDescription() != null && p.getDescription().toLowerCase().contains(searchQuery));
+
+            if (matchesCategory && matchesSearch) {
+                filteredList.add(p);
             }
         }
         productAdapter.notifyDataSetChanged();
     }
 
     private void setupNavigation() {
-        findViewById(R.id.cardAvatar).setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
-        });
-
-        findViewById(R.id.btnHeaderCart).setOnClickListener(v -> {
-            startActivity(new Intent(this, CartActivity.class));
-        });
-
-        findViewById(R.id.btnNavHistory).setOnClickListener(v -> {
-            startActivity(new Intent(this, HistoryActivity.class));
-        });
-
-        findViewById(R.id.btnNavChat).setOnClickListener(v -> {
-            startActivity(new Intent(this, ChatActivity.class));
-        });
+        findViewById(R.id.cardAvatar).setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
+        findViewById(R.id.btnHeaderCart).setOnClickListener(v -> startActivity(new Intent(this, CartActivity.class)));
+        findViewById(R.id.btnNavHistory).setOnClickListener(v -> startActivity(new Intent(this, HistoryActivity.class)));
+        findViewById(R.id.btnNavChat).setOnClickListener(v -> startActivity(new Intent(this, ChatActivity.class)));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        fetchAllProducts(); // Cập nhật lại khi quay lại từ màn hình khác
     }
 }

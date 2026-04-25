@@ -33,6 +33,9 @@ public class User {
     @SerializedName("studentCardImageUrl")
     private String studentCardImageUrl;
 
+    @SerializedName("avatarUrl")
+    private String avatarUrl;
+
     // Constructor không tham số (Bắt buộc)
     public User() {}
 
@@ -72,4 +75,7 @@ public class User {
 
     public String getStudentCardImageUrl() { return studentCardImageUrl; }
     public void setStudentCardImageUrl(String studentCardImageUrl) { this.studentCardImageUrl = studentCardImageUrl; }
+
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 }

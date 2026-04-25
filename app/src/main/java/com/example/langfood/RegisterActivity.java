@@ -64,14 +64,9 @@ public class RegisterActivity extends AppCompatActivity {
         String pass = etPassword.getText().toString().trim();
         String confirmPass = etConfirmPassword.getText().toString().trim();
 
-        // Validation
+        // Validation - Bỏ ktxBuilding và ktxRoom khỏi điều kiện bắt buộc
         if (fullName.isEmpty() || username.isEmpty() || email.isEmpty() || phone.isEmpty() || pass.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin cơ bản!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (ktxBuilding.isEmpty() || ktxRoom.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập thông tin Ký túc xá!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -85,8 +80,9 @@ public class RegisterActivity extends AppCompatActivity {
         newUser.setFullName(fullName);
         newUser.setUsername(username);
         newUser.setPhoneNumber(phone);
-        newUser.setKtxBuilding(ktxBuilding);
-        newUser.setKtxRoom(ktxRoom);
+        // Có thể để trống nếu không ở KTX
+        newUser.setKtxBuilding(ktxBuilding.isEmpty() ? "" : ktxBuilding);
+        newUser.setKtxRoom(ktxRoom.isEmpty() ? "" : ktxRoom);
         newUser.setPasswordHash(pass); 
         newUser.setRoleId(1); // 1: Buyer
 

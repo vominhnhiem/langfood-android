@@ -95,7 +95,7 @@
                     android:layout_height="55dp"
                     android:layout_weight="1"
                     android:background="@android:drawable/editbox_background"
-                    android:hint="Tòa KTX (vd: A5)"
+                    android:hint="Tòa KTX (tùy chọn)"
                     android:paddingLeft="15dp"
                     android:textSize="15sp"
                     android:inputType="text" />
@@ -110,7 +110,7 @@
                     android:layout_height="55dp"
                     android:layout_weight="1"
                     android:background="@android:drawable/editbox_background"
-                    android:hint="Số phòng"
+                    android:hint="Số phòng (tùy chọn)"
                     android:paddingLeft="15dp"
                     android:textSize="15sp"
                     android:inputType="text" />

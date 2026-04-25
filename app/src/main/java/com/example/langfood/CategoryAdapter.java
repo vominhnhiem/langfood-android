@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.example.langfood.api.ApiClient;
 import com.example.langfood.models.Category;
 import java.util.List;
 
@@ -15,7 +16,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
     private List<Category> categories;
     private OnCategoryClickListener listener;
-    private static final String BASE_URL = "http://192.168.100.192:5289";
 
     public interface OnCategoryClickListener {
         void onEditClick(Category category);
@@ -42,7 +42,9 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
         String imageUrl = category.getImageUrl();
         if (imageUrl != null && imageUrl.startsWith("/")) {
-            imageUrl = BASE_URL + imageUrl;
+            imageUrl = ApiClient.BASE_URL + imageUrl.substring(1);
+        } else if (imageUrl != null && !imageUrl.startsWith("http")) {
+            imageUrl = ApiClient.BASE_URL + imageUrl;
         }
 
         // Load image using Glide

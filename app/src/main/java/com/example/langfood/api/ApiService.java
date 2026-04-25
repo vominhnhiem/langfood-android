@@ -35,11 +35,30 @@ public interface ApiService {
     @POST("api/Users/register")
     Call<User> register(@Body User user);
 
+    @PUT("api/Users/{id}")
+    Call<User> updateUser(@Path("id") String id, @Body User user);
+
+    @POST("api/Users/upload-avatar/{userId}")
+    @Multipart
+    Call<Void> uploadAvatar(@Path("userId") String userId, @Part MultipartBody.Part image);
+
+    @GET("api/Users/{id}")
+    Call<User> getUserById(@Path("id") String id);
+
     @POST("api/Orders")
     Call<Order> createOrder(@Body Order order);
 
     @GET("api/Orders/buyer/{buyerId}")
     Call<List<Order>> getOrdersByBuyer(@Path("buyerId") String buyerId);
+
+    @GET("api/Orders")
+    Call<List<Order>> getAllOrders();
+
+    @PUT("api/Orders/accept/{id}")
+    Call<Void> acceptOrder(@Path("id") int id, @Query("shipperId") String shipperId);
+
+    @PUT("api/Orders/complete/{id}")
+    Call<Void> completeOrder(@Path("id") int id);
 
     // --- API GIỎ HÀNG (SERVER) ---
     @GET("api/Cart/{userId}")
@@ -57,12 +76,6 @@ public interface ApiService {
     // --- API MỚI CHO SHIPPER ---
     @GET("api/Orders/available")
     Call<List<Order>> getAvailableOrders();
-
-    @PUT("api/Orders/accept/{id}")
-    Call<Void> acceptOrder(@Path("id") int id, @Query("shipperId") String shipperId);
-
-    @PUT("api/Orders/complete/{id}")
-    Call<Void> completeOrder(@Path("id") int id);
 
     @POST("api/Products/upload")
     @Multipart

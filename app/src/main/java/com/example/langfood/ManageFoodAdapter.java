@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.example.langfood.api.ApiClient;
 import com.example.langfood.models.Product;
 import java.util.List;
 import java.util.Locale;
@@ -18,7 +19,6 @@ public class ManageFoodAdapter extends RecyclerView.Adapter<ManageFoodAdapter.Vi
     private Context context;
     private List<Product> productList;
     private OnFoodItemClickListener listener;
-    private static final String BASE_URL = "http://192.168.100.192:5289/";
 
     public interface OnFoodItemClickListener {
         void onEditClick(Product product);
@@ -54,7 +54,9 @@ public class ManageFoodAdapter extends RecyclerView.Adapter<ManageFoodAdapter.Vi
         }
 
         // Load ảnh bằng Glide với BASE_URL
-        String fullImageUrl = BASE_URL + product.getImageUrl();
+        String imageUrl = product.getImageUrl();
+        String fullImageUrl = (imageUrl != null && imageUrl.startsWith("http")) ? imageUrl : ApiClient.BASE_URL + (imageUrl != null && imageUrl.startsWith("/") ? imageUrl.substring(1) : (imageUrl != null ? imageUrl : ""));
+
         Glide.with(context)
                 .load(fullImageUrl)
                 .placeholder(R.drawable.lang_food_avt)

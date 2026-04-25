@@ -17,6 +17,14 @@
 
         <!-- Thêm Activity này -->
         <activity
+            android:name=".CheckoutActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ManageOrderSellerActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ManageCategoryActivity"
             android:exported="false" />
 
@@ -56,6 +64,13 @@
         <activity
             android:name=".EditFoodActivity"
             android:exported="false" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SellerStoreActivity"
+            android:exported="false" />
+
         <activity
             android:name=".LoginActivity"
             android:exported="true">
